@@ -1,6 +1,10 @@
 import React, { useState } from 'react';
-import { login, register } from '../api/auth';
+import { login, register,getCurrentUser } from '../api/auth';
 import { Mail, Lock, User } from 'lucide-react';
+import { useAuthStore } from '../store/useAuthStore';
+
+
+
 
 interface AuthModalProps {
   onClose: () => void;
@@ -15,6 +19,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onClose, onSuccess }) => {
     password: '',
   });
   const [error, setError] = useState('');
+  const {  setUser } = useAuthStore();
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -23,9 +29,13 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onClose, onSuccess }) => {
     try {
       if (isLogin) {
         await login(formData.email, formData.password);
+        const currentUser = await getCurrentUser();
+      setUser(currentUser);
       } else {
         await register(formData.name, formData.email, formData.password);
       }
+      
+  
       onSuccess();
       onClose();
     } catch (err) {
